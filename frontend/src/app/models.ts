@@ -52,3 +52,9 @@ export interface SesionAdmin {
 export interface ApiResponse<T> {
   data: T;
 }
+
+export interface PedidoCreado { idPedido: number; total: number; duplicado: boolean; }
+
+export interface PedidoResumen { idPedido: number; nombreCliente: string; correo: string; total: number; estado: string; fechaCreacion: string; }
+export interface DetallePedido { idDetalle: number; idProducto: number; nombreProducto: string; cantidad: number; precioUnitario: number; subtotal: number; }
+export interface PedidoDetalle extends PedidoResumen { telefono: string; direccion: string; ciudad: string; departamento: string; observaciones: string | null; detalles: DetallePedido[]; }

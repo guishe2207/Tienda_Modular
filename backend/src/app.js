@@ -9,6 +9,10 @@ const authRoutes = require('./routes/auth.routes');
 const categoriasRoutes = require('./routes/categorias.routes');
 const healthRoutes = require('./routes/health.routes');
 const productosRoutes = require('./routes/productos.routes');
+const pedidosRoutes = require('./routes/pedidos.routes');
+const pedidosController = require('./controllers/pedidos.controller');
+const { requireAuth } = require('./middleware/auth');
+const { validateId } = require('./middleware/validation');
 
 const app = express();
 
@@ -45,6 +49,9 @@ app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument, {
 app.use('/api/auth', authRoutes);
 app.use('/api/categorias', categoriasRoutes);
 app.use('/api/productos', productosRoutes);
+app.use('/api/pedidos', pedidosRoutes);
+app.get('/api/admin/pedidos', requireAuth, pedidosController.listar);
+app.get('/api/admin/pedidos/:id', requireAuth, validateId, pedidosController.obtener);
 app.use('/api/health', healthRoutes);
 app.use(notFound);
 app.use(errorHandler);

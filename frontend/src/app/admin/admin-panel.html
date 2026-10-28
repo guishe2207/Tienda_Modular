@@ -14,6 +14,7 @@
     <button type="button" [class.is-active]="pestana() === 'productos'" (click)="cambiarPestana('productos')">Productos</button>
     <button type="button" [class.is-active]="pestana() === 'categorias'" (click)="cambiarPestana('categorias')">Categorías</button>
     <button type="button" [class.is-active]="pestana() === 'inventario'" (click)="cambiarPestana('inventario')">Inventario</button>
+    <button type="button" [class.is-active]="pestana() === 'pedidos'" (click)="cambiarPestana('pedidos')">Pedidos</button>
   </nav>
 
   @if (mensaje()) {
@@ -170,6 +171,16 @@
               }
             </tbody>
           </table>
+        </section>
+      }
+
+      @case ('pedidos') {
+        <section class="admin-card orders-card">
+          <div class="orders-heading"><div><h2>Historial de pedidos</h2><p class="empty-note">Las compras confirmadas conservan su precio y productos históricos.</p></div><button type="button" class="ghost-button" (click)="cambiarPestana('pedidos')">Actualizar</button></div>
+          @if (cargandoPedidos()) { <p class="state-message">Cargando pedidos...</p> }
+          @else if (pedidos().length === 0) { <p class="empty-note">Aún no hay pedidos registrados.</p> }
+          @else { <div class="orders-table-wrap"><table class="inventory-table"><thead><tr><th>Pedido</th><th>Comprador</th><th>Fecha</th><th>Total</th><th>Estado</th><th></th></tr></thead><tbody>@for (pedido of pedidos(); track pedido.idPedido) { <tr><td>#{{ pedido.idPedido }}</td><td>{{ pedido.nombreCliente }}<br><small>{{ pedido.correo }}</small></td><td>{{ pedido.fechaCreacion | date:'short' }}</td><td>{{ pedido.total | currency:'COP':'symbol-narrow':'1.0-0' }}</td><td>{{ pedido.estado }}</td><td><button type="button" class="ghost-button" (click)="verPedido(pedido.idPedido)">Ver detalle</button></td></tr> }</tbody></table></div> }
+          @if (pedidoSeleccionado(); as pedido) { <section class="order-detail"><div class="orders-heading"><h3>Pedido #{{ pedido.idPedido }}</h3><button type="button" class="ghost-button" (click)="cerrarDetallePedido()">Cerrar</button></div><p>{{ pedido.nombreCliente }} · {{ pedido.telefono }} · {{ pedido.direccion }}, {{ pedido.ciudad }}, {{ pedido.departamento }}</p><table class="inventory-table"><thead><tr><th>Producto</th><th>Cantidad</th><th>Precio unitario</th><th>Subtotal</th></tr></thead><tbody>@for (detalle of pedido.detalles; track detalle.idDetalle) { <tr><td>{{ detalle.nombreProducto }}</td><td>{{ detalle.cantidad }}</td><td>{{ detalle.precioUnitario | currency:'COP':'symbol-narrow':'1.0-0' }}</td><td>{{ detalle.subtotal | currency:'COP':'symbol-narrow':'1.0-0' }}</td></tr> }</tbody></table><p class="order-total">Total: {{ pedido.total | currency:'COP':'symbol-narrow':'1.0-0' }} · {{ pedido.estado }}</p></section> }
         </section>
       }
     }

@@ -2,7 +2,7 @@ import { HttpClient } from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
 import { Observable, map } from 'rxjs';
 import { environment } from '../../environments/environment';
-import { ApiResponse, Categoria, CategoriaEntrada, Producto, ProductoEntrada } from '../models';
+import { ApiResponse, Categoria, CategoriaEntrada, PedidoDetalle, PedidoResumen, Producto, ProductoEntrada } from '../models';
 
 // Escrituras del panel de administracion. Las lecturas publicas estan en CatalogService.
 @Injectable({ providedIn: 'root' })
@@ -32,5 +32,13 @@ export class AdminService {
 
   eliminarProducto(id: number): Observable<void> {
     return this.http.delete<void>(`${this.apiUrl}/productos/${id}`);
+  }
+
+  getPedidos(): Observable<PedidoResumen[]> {
+    return this.http.get<ApiResponse<PedidoResumen[]>>(`${this.apiUrl}/admin/pedidos`).pipe(map((r) => r.data));
+  }
+
+  getPedido(id: number): Observable<PedidoDetalle> {
+    return this.http.get<ApiResponse<PedidoDetalle>>(`${this.apiUrl}/admin/pedidos/${id}`).pipe(map((r) => r.data));
   }
 }

@@ -14,6 +14,7 @@ module.exports = swaggerJsdoc({
     tags: [
       { name: 'Categorias', description: 'Organizacion del catalogo por categoria' },
       { name: 'Productos', description: 'Productos disponibles en el catalogo' },
+      { name: 'Pedidos', description: 'Compras simuladas e inventario transaccional' },
       { name: 'Salud', description: 'Estado del servicio' },
     ],
     components: {

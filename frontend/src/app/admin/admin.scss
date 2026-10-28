@@ -44,6 +44,12 @@
 .notice-error, .form-error { color: #9c4a38; background: #f6e7e2; }
 .form-error { margin: 0 0 14px; padding: 10px 12px; font-size: 13px; }
 .state-message { color: #687269; font-size: 13px; }
+.orders-heading { display:flex; align-items:start; justify-content:space-between; gap:16px; margin-bottom:12px; }
+.orders-heading h3 { margin:0; font-family:'Playfair Display', Georgia, serif; font-weight:500; }
+.orders-table-wrap { overflow-x:auto; }
+.orders-card small { color:#7b7f76; }
+.order-detail { margin-top:24px; padding:18px; border:1px solid #d6d4c9; background:#fff; }
+.order-detail p { font-size:13px; color:#5f655d; }.order-total { font-weight:700; text-align:right; }
 
 @media (max-width: 760px) {
   .admin-shell { width: min(100% - 32px, 560px); }
