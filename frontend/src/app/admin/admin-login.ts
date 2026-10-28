@@ -1,5 +1,5 @@
 import { HttpErrorResponse } from '@angular/common/http';
-import { Component, inject, signal } from '@angular/core';
+import { Component, OnInit, inject, signal } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import { AuthService } from '../auth/auth.service';
@@ -10,7 +10,7 @@ import { AuthService } from '../auth/auth.service';
   styleUrl: './admin.scss',
   templateUrl: './admin-login.html',
 })
-export class AdminLogin {
+export class AdminLogin implements OnInit {
   private readonly auth = inject(AuthService);
   private readonly router = inject(Router);
   private readonly fb = inject(FormBuilder);
@@ -21,6 +21,15 @@ export class AdminLogin {
   });
   protected readonly enviando = signal(false);
   protected readonly error = signal('');
+
+  ngOnInit(): void {
+    if (this.auth.isLoggedIn()) {
+      this.auth.verificarSesion().subscribe({
+        next: () => this.router.navigateByUrl('/admin'),
+        error: () => this.auth.limpiarSesion(),
+      });
+    }
+  }
 
   protected submit(): void {
     if (this.form.invalid) {

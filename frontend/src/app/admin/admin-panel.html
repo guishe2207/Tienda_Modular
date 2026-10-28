@@ -11,6 +11,7 @@
   </header>
 
   <nav class="tabs" aria-label="Secciones del panel">
+    <button type="button" [class.is-active]="pestana() === 'dashboard'" (click)="cambiarPestana('dashboard')">Dashboard</button>
     <button type="button" [class.is-active]="pestana() === 'productos'" (click)="cambiarPestana('productos')">Productos</button>
     <button type="button" [class.is-active]="pestana() === 'categorias'" (click)="cambiarPestana('categorias')">Categorías</button>
     <button type="button" [class.is-active]="pestana() === 'inventario'" (click)="cambiarPestana('inventario')">Inventario</button>
@@ -28,6 +29,18 @@
     <p class="state-message">Cargando datos...</p>
   } @else {
     @switch (pestana()) {
+      @case ('dashboard') {
+        <section>
+          <div class="metrics" aria-label="Resumen del catálogo">
+            <article><span>Total productos</span><strong>{{ productos().length }}</strong></article>
+            <article><span>Categorías</span><strong>{{ categorias().length }}</strong></article>
+            <article><span>Disponibles</span><strong>{{ productosDisponibles() }}</strong></article>
+            <article><span>Agotados</span><strong>{{ productosAgotados() }}</strong></article>
+            <article class="metric-warning"><span>Stock bajo</span><strong>{{ productosStockBajo() }}</strong></article>
+          </div>
+          <section class="admin-card dashboard-help"><h2>Gestión rápida</h2><p>Administra productos, categorías e inventario desde el panel. Las compras confirmadas aparecen en Pedidos.</p><div class="form-actions"><button type="button" class="primary-button" (click)="cambiarPestana('productos')">Gestionar productos</button><button type="button" class="ghost-button" (click)="cambiarPestana('pedidos')">Ver pedidos</button></div></section>
+        </section>
+      }
       @case ('productos') {
         <section class="panel-grid">
           <form class="admin-card" [formGroup]="productoForm" (ngSubmit)="guardarProducto()">

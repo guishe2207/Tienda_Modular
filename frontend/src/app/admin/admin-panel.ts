@@ -9,7 +9,7 @@ import { CatalogService } from '../catalog.service';
 import { Categoria, PedidoDetalle, PedidoResumen, Producto, ProductoEntrada } from '../models';
 import { AdminService } from './admin.service';
 
-type Pestana = 'productos' | 'categorias' | 'inventario' | 'pedidos';
+type Pestana = 'dashboard' | 'productos' | 'categorias' | 'inventario' | 'pedidos';
 
 const STOCK_BAJO = 5;
 
@@ -27,7 +27,7 @@ export class AdminPanel implements OnInit {
   private readonly fb = inject(FormBuilder);
 
   protected readonly stockBajo = STOCK_BAJO;
-  protected readonly pestana = signal<Pestana>('productos');
+  protected readonly pestana = signal<Pestana>('dashboard');
   protected readonly categorias = signal<Categoria[]>([]);
   protected readonly productos = signal<Producto[]>([]);
   protected readonly pedidos = signal<PedidoResumen[]>([]);
@@ -40,6 +40,8 @@ export class AdminPanel implements OnInit {
   protected readonly categoriaEditandoId = signal<number | null>(null);
   protected readonly inventario = computed(() => [...this.productos()].sort((a, b) => a.stock - b.stock));
   protected readonly productosStockBajo = computed(() => this.productos().filter((p) => p.stock <= STOCK_BAJO).length);
+  protected readonly productosDisponibles = computed(() => this.productos().filter((p) => p.stock > 0).length);
+  protected readonly productosAgotados = computed(() => this.productos().filter((p) => p.stock === 0).length);
 
   protected readonly productoForm = this.fb.nonNullable.group({
     nombre: ['', [Validators.required, Validators.maxLength(120)]],
