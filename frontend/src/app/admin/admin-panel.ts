@@ -1,4 +1,4 @@
-import { CurrencyPipe } from '@angular/common';
+import { CurrencyPipe, DatePipe } from '@angular/common';
 import { HttpErrorResponse } from '@angular/common/http';
 import { Component, OnInit, computed, inject, signal } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
@@ -6,15 +6,15 @@ import { Router, RouterLink } from '@angular/router';
 import { Observable, forkJoin } from 'rxjs';
 import { AuthService } from '../auth/auth.service';
 import { CatalogService } from '../catalog.service';
-import { Categoria, Producto, ProductoEntrada } from '../models';
+import { Categoria, PedidoDetalle, PedidoResumen, Producto, ProductoEntrada } from '../models';
 import { AdminService } from './admin.service';
 
-type Pestana = 'productos' | 'categorias' | 'inventario';
+type Pestana = 'productos' | 'categorias' | 'inventario' | 'pedidos';
 
 const STOCK_BAJO = 5;
 
 @Component({
-  imports: [CurrencyPipe, ReactiveFormsModule, RouterLink],
+  imports: [CurrencyPipe, DatePipe, ReactiveFormsModule, RouterLink],
   selector: 'app-admin-panel',
   styleUrl: './admin.scss',
   templateUrl: './admin-panel.html',
@@ -30,6 +30,9 @@ export class AdminPanel implements OnInit {
   protected readonly pestana = signal<Pestana>('productos');
   protected readonly categorias = signal<Categoria[]>([]);
   protected readonly productos = signal<Producto[]>([]);
+  protected readonly pedidos = signal<PedidoResumen[]>([]);
+  protected readonly pedidoSeleccionado = signal<PedidoDetalle | null>(null);
+  protected readonly cargandoPedidos = signal(false);
   protected readonly cargando = signal(true);
   protected readonly mensaje = signal('');
   protected readonly error = signal('');
@@ -59,7 +62,18 @@ export class AdminPanel implements OnInit {
   protected cambiarPestana(pestana: Pestana): void {
     this.pestana.set(pestana);
     this.limpiarAvisos();
+    if (pestana === 'pedidos') this.cargarPedidos();
   }
+
+  protected verPedido(id: number): void {
+    this.cargandoPedidos.set(true);
+    this.admin.getPedido(id).subscribe({
+      next: (pedido) => { this.pedidoSeleccionado.set(pedido); this.cargandoPedidos.set(false); },
+      error: (error: HttpErrorResponse) => { this.cargandoPedidos.set(false); this.error.set(this.mensajeDeError(error)); },
+    });
+  }
+
+  protected cerrarDetallePedido(): void { this.pedidoSeleccionado.set(null); }
 
   protected guardarProducto(): void {
     if (this.productoForm.invalid) {
@@ -171,6 +185,15 @@ export class AdminPanel implements OnInit {
         this.cargando.set(false);
         this.error.set(this.mensajeDeError(error));
       },
+    });
+  }
+
+  private cargarPedidos(): void {
+    this.cargandoPedidos.set(true);
+    this.pedidoSeleccionado.set(null);
+    this.admin.getPedidos().subscribe({
+      next: (pedidos) => { this.pedidos.set(pedidos); this.cargandoPedidos.set(false); },
+      error: (error: HttpErrorResponse) => { this.cargandoPedidos.set(false); this.error.set(this.mensajeDeError(error)); },
     });
   }
 

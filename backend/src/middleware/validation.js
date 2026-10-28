@@ -111,4 +111,19 @@ function validateLogin(request, response, next) {
   next();
 }
 
-module.exports = { validateBody, validateCategoryQuery, validateId, validateLogin };
+function validateOrder(request, response, next) {
+  const body = request.body;
+  if (!body || typeof body !== 'object' || Array.isArray(body)) return next(new AppError(400, 'VALIDATION_ERROR', 'El cuerpo debe ser un objeto JSON.'));
+  const allowed = ['nombre', 'correo', 'telefono', 'direccion', 'ciudad', 'departamento', 'observaciones', 'items', 'claveIdempotencia'];
+  const errors = Object.keys(body).filter((key) => !allowed.includes(key)).map((field) => ({ field, message: 'Este campo no está permitido.' }));
+  for (const field of ['nombre', 'correo', 'telefono', 'direccion', 'ciudad', 'departamento']) if (typeof body[field] !== 'string' || !body[field].trim()) errors.push({ field, message: 'Es obligatorio.' });
+  if (!/^\S+@\S+\.\S+$/.test(body.correo ?? '')) errors.push({ field: 'correo', message: 'Debe ser un correo válido.' });
+  if (!Array.isArray(body.items) || !body.items.length) errors.push({ field: 'items', message: 'El carrito no puede estar vacío.' });
+  else body.items.forEach((item, index) => { if (!item || !Number.isSafeInteger(item.idProducto) || item.idProducto < 1 || !Number.isSafeInteger(item.cantidad) || item.cantidad < 1) errors.push({ field: `items[${index}]`, message: 'Producto o cantidad inválidos.' }); });
+  if (typeof body.claveIdempotencia !== 'string' || !/^[0-9a-f]{8}-[0-9a-f-]{27}$/i.test(body.claveIdempotencia)) errors.push({ field: 'claveIdempotencia', message: 'Clave de compra inválida.' });
+  if (errors.length) return next(new AppError(400, 'VALIDATION_ERROR', 'La solicitud contiene datos inválidos.', errors));
+  request.validatedBody = { ...body, nombre: body.nombre.trim(), correo: body.correo.trim(), telefono: body.telefono.trim(), direccion: body.direccion.trim(), ciudad: body.ciudad.trim(), departamento: body.departamento.trim(), observaciones: typeof body.observaciones === 'string' ? body.observaciones.trim() || null : null };
+  next();
+}
+
+module.exports = { validateBody, validateCategoryQuery, validateId, validateLogin, validateOrder };
