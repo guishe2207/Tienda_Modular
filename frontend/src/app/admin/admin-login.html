@@ -3,7 +3,7 @@
 
   <form class="admin-card" [formGroup]="form" (ngSubmit)="submit()">
     <p class="eyebrow">ADMINISTRACIÓN</p>
-    <h1>Iniciar sesión</h1>
+    <h1>Acceso de administrador</h1>
 
     <label class="field">
       <span>Usuario</span>
@@ -20,7 +20,7 @@
     }
 
     <button type="submit" class="primary-button" [disabled]="enviando()">
-      {{ enviando() ? 'Entrando...' : 'Entrar' }}
+      {{ enviando() ? 'Entrando...' : 'Iniciar sesión' }}
     </button>
   </form>
 </main>

@@ -44,6 +44,7 @@
 .notice-error, .form-error { color: #9c4a38; background: #f6e7e2; }
 .form-error { margin: 0 0 14px; padding: 10px 12px; font-size: 13px; }
 .state-message { color: #687269; font-size: 13px; }
+.metrics { display:grid; grid-template-columns:repeat(5, minmax(0, 1fr)); gap:12px; margin-bottom:24px; }.metrics article { display:grid; gap:8px; padding:18px; border:1px solid #deded4; background:#faf8f2; }.metrics span { color:#687269; font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:.04em; }.metrics strong { color:#22392d; font:500 30px Georgia,serif; }.metrics .metric-warning strong { color:#9c4a38; }.dashboard-help { max-width:650px; }.dashboard-help p { color:#687269; font-size:13px; line-height:1.5; }
 .orders-heading { display:flex; align-items:start; justify-content:space-between; gap:16px; margin-bottom:12px; }
 .orders-heading h3 { margin:0; font-family:'Playfair Display', Georgia, serif; font-weight:500; }
 .orders-table-wrap { overflow-x:auto; }
@@ -55,4 +56,5 @@
   .admin-shell { width: min(100% - 32px, 560px); }
   .panel-grid { grid-template-columns: 1fr; }
   .admin-header { flex-direction: column; align-items: start; }
+  .metrics { grid-template-columns:repeat(2, minmax(0, 1fr)); }
 }
