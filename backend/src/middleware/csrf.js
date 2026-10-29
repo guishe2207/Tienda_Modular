@@ -1,15 +1,14 @@
 const crypto = require('node:crypto');
-const { csrfSecret } = require('../config/env');
 const { AppError } = require('./errors');
 
-function crearTokenCsrf(token) {
-  return crypto.createHmac('sha256', csrfSecret).update(token).digest('base64url');
+function crearTokenCsrf() {
+  return crypto.randomBytes(32).toString('base64url');
 }
 
 function requireCsrf(request, response, next) {
   const received = request.get('X-CSRF-Token') || '';
-  const expected = crearTokenCsrf(request.token);
-  const valid = received.length === expected.length
+  const expected = request.cookies?.tm_csrf || '';
+  const valid = Boolean(expected) && received.length === expected.length
     && crypto.timingSafeEqual(Buffer.from(received), Buffer.from(expected));
   if (!valid) {
     return next(new AppError(403, 'CSRF_TOKEN_INVALID', 'El encabezado X-CSRF-Token falta o no es valido.'));
@@ -17,4 +16,8 @@ function requireCsrf(request, response, next) {
   next();
 }
 
-module.exports = { crearTokenCsrf, requireCsrf };
+function requireCsrfIfAuthenticated(request, response, next) {
+  return request.user ? requireCsrf(request, response, next) : next();
+}
+
+module.exports = { crearTokenCsrf, requireCsrf, requireCsrfIfAuthenticated };

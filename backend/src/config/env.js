@@ -6,6 +6,7 @@ dotenv.config();
 const port = Number(process.env.PORT || 3000);
 const production = process.env.NODE_ENV === 'production';
 const csrfSecret = process.env.CSRF_SECRET || (production ? '' : 'solo-desarrollo-no-usar-en-produccion');
+const jwtSecret = process.env.JWT_SECRET || (production ? '' : 'solo-desarrollo-jwt-no-usar-en-produccion');
 const pgSsl = process.env.PGSSL === 'true';
 const pgRejectUnauthorized = process.env.PGSSL_REJECT_UNAUTHORIZED === undefined
   ? production
@@ -14,15 +15,18 @@ const pgRejectUnauthorized = process.env.PGSSL_REJECT_UNAUTHORIZED === undefined
 if (!csrfSecret) {
   throw new Error('CSRF_SECRET es obligatorio cuando NODE_ENV=production.');
 }
+if (!jwtSecret) throw new Error('JWT_SECRET es obligatorio cuando NODE_ENV=production.');
 
 module.exports = {
   port,
   production,
   csrfSecret,
+  jwtSecret,
   https: {
     enabled: process.env.HTTPS_ENABLED === 'true',
     keyPath: process.env.HTTPS_KEY_PATH,
     certPath: process.env.HTTPS_CERT_PATH,
+    port: Number(process.env.HTTPS_PORT || 3443),
   },
   // El propio API se incluye siempre: Swagger UI se sirve desde este origen y sus peticiones POST/PUT/DELETE lo envian.
   corsOrigins: [...new Set([

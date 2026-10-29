@@ -1,0 +1,119 @@
+{
+  "fecha": "2026-10-29T16:33:04.799Z",
+  "resultados": [
+    {
+      "prueba": "login seguridad_admin_cebc6784e917",
+      "esperado": 200,
+      "obtenido": 200,
+      "resultado": "OK"
+    },
+    {
+      "prueba": "HTTPS health",
+      "esperado": 200,
+      "obtenido": 200,
+      "resultado": "OK"
+    },
+    {
+      "prueba": "escritura sin sesión",
+      "esperado": 401,
+      "obtenido": 401,
+      "resultado": "OK"
+    },
+    {
+      "prueba": "CSRF ausente",
+      "esperado": 403,
+      "obtenido": 403,
+      "resultado": "OK"
+    },
+    {
+      "prueba": "CSRF válido",
+      "esperado": 201,
+      "obtenido": 201,
+      "resultado": "OK"
+    },
+    {
+      "prueba": "carga XSS almacenada para renderizado seguro",
+      "esperado": 201,
+      "obtenido": 201,
+      "resultado": "OK"
+    },
+    {
+      "prueba": "registro cliente",
+      "esperado": 201,
+      "obtenido": 201,
+      "resultado": "OK"
+    },
+    {
+      "prueba": "elevación de privilegios",
+      "esperado": 400,
+      "obtenido": 400,
+      "resultado": "OK"
+    },
+    {
+      "prueba": "login cliente_a_mvtriace",
+      "esperado": 200,
+      "obtenido": 200,
+      "resultado": "OK"
+    },
+    {
+      "prueba": "cliente no administra",
+      "esperado": 403,
+      "obtenido": 403,
+      "resultado": "OK"
+    },
+    {
+      "prueba": "cantidad negativa",
+      "esperado": 400,
+      "obtenido": 400,
+      "resultado": "OK"
+    },
+    {
+      "prueba": "catálogo público",
+      "esperado": 200,
+      "obtenido": 200,
+      "resultado": "OK"
+    },
+    {
+      "prueba": "pedido autenticado / precio servidor",
+      "esperado": 201,
+      "obtenido": 201,
+      "resultado": "OK"
+    },
+    {
+      "prueba": "login cliente_b_mvtriace",
+      "esperado": 200,
+      "obtenido": 200,
+      "resultado": "OK"
+    },
+    {
+      "prueba": "IDOR pedido ajeno",
+      "esperado": 404,
+      "obtenido": 404,
+      "resultado": "OK"
+    },
+    {
+      "prueba": "JWT expirado",
+      "esperado": 401,
+      "obtenido": 401,
+      "resultado": "OK"
+    },
+    {
+      "prueba": "sexto login fallido",
+      "esperado": 429,
+      "obtenido": 429,
+      "resultado": "OK"
+    },
+    {
+      "prueba": "CORS no autorizado",
+      "esperado": 403,
+      "obtenido": 403,
+      "resultado": "OK"
+    },
+    {
+      "prueba": "Helmet/CSP",
+      "esperado": 200,
+      "obtenido": 200,
+      "resultado": "OK"
+    }
+  ]
+}

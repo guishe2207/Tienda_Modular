@@ -7,6 +7,8 @@ const { requireAuth } = require('../src/middleware/auth');
 const { crearTokenCsrf, requireCsrf } = require('../src/middleware/csrf');
 const { validateBody, validateId, validateLogin } = require('../src/middleware/validation');
 const { hashPassword, verifyPassword } = require('../src/security/password');
+const { loginRateLimit, resetLoginRateLimitForTests } = require('../src/middleware/login-rate-limit');
+const { https: httpsConfig } = require('../src/config/env');
 
 // Ejecuta un middleware sin Express y devuelve el error que recibe next(), o undefined si todo esta bien.
 function ejecutar(middleware, request) {
@@ -22,7 +24,7 @@ test('Swagger publica la interfaz y la especificacion OpenAPI', async () => {
   assert.equal(spec.status, 200);
   assert.ok(spec.body.paths['/api/productos']);
   assert.ok(spec.body.paths['/api/auth/login']);
-  assert.ok(spec.body.components.securitySchemes.bearerAuth);
+  assert.ok(spec.body.components.securitySchemes.cookieAuth);
 });
 
 test('rechaza IDs invalidos con el formato de error comun', async () => {
@@ -89,24 +91,40 @@ test('valida el cuerpo del login sin consultar PostgreSQL', async () => {
   assert.equal(error.status, 400);
 });
 
+test('bloquea el sexto intento de login con 429', async () => {
+  resetLoginRateLimitForTests();
+  const requestMock = { ip: '127.0.0.1', body: { usuario: 'prueba' } };
+  for (let attempt = 0; attempt < 5; attempt += 1) {
+    let nextError;
+    loginRateLimit(requestMock, { set() {} }, (error) => { nextError = error; });
+    assert.equal(nextError, undefined);
+    requestMock.loginRateLimit.failure();
+  }
+  let blocked;
+  loginRateLimit(requestMock, { set() {} }, (error) => { blocked = error; });
+  assert.equal(blocked.status, 429);
+  assert.equal(blocked.code, 'LOGIN_RATE_LIMITED');
+});
+
 test('requireAuth rechaza una peticion sin token', async () => {
   const error = await ejecutar(requireAuth, { get: () => undefined });
   assert.equal(error.status, 401);
 });
 
 test('CSRF exige el encabezado correcto para escrituras autenticadas', async () => {
-  const token = 'token-de-prueba';
-  const missing = await ejecutar(requireCsrf, { token, get: () => '' });
+  const token = crearTokenCsrf();
+  const missing = await ejecutar(requireCsrf, { cookies: { tm_csrf: token }, get: () => '' });
   assert.equal(missing.status, 403);
   assert.equal(missing.code, 'CSRF_TOKEN_INVALID');
-  const valid = await ejecutar(requireCsrf, { token, get: () => crearTokenCsrf(token) });
+  const valid = await ejecutar(requireCsrf, { cookies: { tm_csrf: token }, get: () => token });
   assert.equal(valid, undefined);
 });
 
-test('Helmet agrega cabeceras de proteccion sin bloquear Swagger', async () => {
+test('Helmet agrega cabeceras de proteccion sin bloquear Swagger y limita HSTS al modo HTTPS local', async () => {
   const response = await request(app).get('/api-docs/');
   assert.equal(response.headers['x-content-type-options'], 'nosniff');
-  assert.ok(response.headers['strict-transport-security']);
+  if (httpsConfig.enabled) assert.match(response.headers['strict-transport-security'], /max-age=300/);
+  else assert.equal(response.headers['strict-transport-security'], undefined);
 });
 
 test('guarda contrasenas con hash que solo verifica la clave correcta', () => {

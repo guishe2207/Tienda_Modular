@@ -1,4 +1,5 @@
 export const environment = {
   production: false,
-  apiUrl: 'http://localhost:3000/api',
+  // El laboratorio local usa API HTTPS con certificado mkcert.
+  apiUrl: 'https://localhost:3443/api',
 };

@@ -9,7 +9,7 @@ coverage/
 .vscode/*
 !.vscode/extensions.json
 *.log
-certs/*.key
-certs/*.pem
+**/certs/*.key
+**/certs/*.pem
 Thumbs.db
 .DS_Store

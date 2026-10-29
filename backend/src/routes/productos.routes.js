@@ -1,6 +1,6 @@
 const express = require('express');
 const controller = require('../controllers/productos.controller');
-const { requireAuth } = require('../middleware/auth');
+const { requireAuth, requireRole } = require('../middleware/auth');
 const { requireCsrf } = require('../middleware/csrf');
 const { validateBody, validateCategoryQuery, validateId } = require('../middleware/validation');
 
@@ -64,7 +64,7 @@ const router = express.Router();
  *               $ref: '#/components/schemas/Error'
  */
 router.get('/', validateCategoryQuery, controller.listar);
-router.post('/', requireAuth, requireCsrf, validateBody('producto'), controller.crear);
+router.post('/', requireAuth, requireRole('admin'), requireCsrf, validateBody('producto'), controller.crear);
 
 /**
  * @swagger
@@ -120,7 +120,7 @@ router.post('/', requireAuth, requireCsrf, validateBody('producto'), controller.
  *         $ref: '#/components/responses/NotFound'
  */
 router.get('/:id', validateId, controller.obtener);
-router.put('/:id', requireAuth, requireCsrf, validateId, validateBody('producto'), controller.actualizar);
-router.delete('/:id', requireAuth, requireCsrf, validateId, controller.eliminar);
+router.put('/:id', requireAuth, requireRole('admin'), requireCsrf, validateId, validateBody('producto'), controller.actualizar);
+router.delete('/:id', requireAuth, requireRole('admin'), requireCsrf, validateId, controller.eliminar);
 
 module.exports = router;

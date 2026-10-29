@@ -5,7 +5,7 @@ function pedidoApi(row) {
   return { ...row, total: Number(row.total), detalles: row.detalles?.map((d) => ({ ...d, precioUnitario: Number(d.precioUnitario), subtotal: Number(d.subtotal) })) };
 }
 
-async function crear(datos) {
+async function crear(datos, user) {
   const client = await pool.connect();
   try {
     await client.query('BEGIN');
@@ -24,9 +24,9 @@ async function crear(datos) {
       return { ...p, cantidad, precio, subtotal };
     });
     const order = await client.query(
-      `INSERT INTO pedidos (nombre_cliente, correo, telefono, direccion, ciudad, departamento, observaciones, total, clave_idempotencia)
-       VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9) RETURNING id_pedido AS "idPedido", total`,
-      [datos.nombre, datos.correo, datos.telefono, datos.direccion, datos.ciudad, datos.departamento, datos.observaciones, total, datos.claveIdempotencia],
+      `INSERT INTO pedidos (nombre_cliente, correo, telefono, direccion, ciudad, departamento, observaciones, total, clave_idempotencia, id_usuario)
+       VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10) RETURNING id_pedido AS "idPedido", total`,
+      [datos.nombre, datos.correo, datos.telefono, datos.direccion, datos.ciudad, datos.departamento, datos.observaciones, total, datos.claveIdempotencia, user?.idUsuario || null],
     );
     for (const detail of details) {
       await client.query('INSERT INTO detalle_pedido (id_pedido,id_producto,nombre_producto,cantidad,precio_unitario,subtotal) VALUES ($1,$2,$3,$4,$5,$6)', [order.rows[0].idPedido, detail.id_producto, detail.nombre, detail.cantidad, detail.precio, detail.subtotal]);
@@ -49,11 +49,12 @@ async function listar() {
   const result = await pool.query('SELECT id_pedido AS "idPedido", nombre_cliente AS "nombreCliente", correo, total, estado, fecha_creacion AS "fechaCreacion" FROM pedidos ORDER BY fecha_creacion DESC');
   return result.rows.map((p) => ({ ...p, total: Number(p.total) }));
 }
-async function obtener(id) {
+async function obtener(id, user) {
   const pedido = await pool.query(
-    'SELECT id_pedido AS "idPedido", nombre_cliente AS "nombreCliente", correo, telefono, direccion, ciudad, departamento, observaciones, total, estado, fecha_creacion AS "fechaCreacion" FROM pedidos WHERE id_pedido = $1', [id],
+    'SELECT id_pedido AS "idPedido", id_usuario AS "idUsuario", nombre_cliente AS "nombreCliente", correo, telefono, direccion, ciudad, departamento, observaciones, total, estado, fecha_creacion AS "fechaCreacion" FROM pedidos WHERE id_pedido = $1', [id],
   );
   if (!pedido.rowCount) throw new AppError(404, 'ORDER_NOT_FOUND', 'No se encontró el pedido solicitado.');
+  if (user?.rol === 'cliente' && pedido.rows[0].idUsuario !== user.idUsuario) throw new AppError(404, 'ORDER_NOT_FOUND', 'Pedido no encontrado.');
   const details = await pool.query(
     'SELECT id_detalle AS "idDetalle", id_producto AS "idProducto", nombre_producto AS "nombreProducto", cantidad, precio_unitario AS "precioUnitario", subtotal FROM detalle_pedido WHERE id_pedido = $1 ORDER BY id_detalle', [id],
   );

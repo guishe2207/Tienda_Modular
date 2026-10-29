@@ -29,9 +29,8 @@ export interface ProductoEntrada {
 }
 
 export interface SesionLogin {
-  token: string;
-  csrfToken: string;
   usuario: string;
+  rol: 'admin' | 'cliente';
   expiraEn: string;
 }
 

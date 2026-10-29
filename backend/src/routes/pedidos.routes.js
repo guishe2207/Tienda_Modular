@@ -1,6 +1,7 @@
 const express = require('express');
 const controller = require('../controllers/pedidos.controller');
-const { requireAuth } = require('../middleware/auth');
+const { requireAuth, optionalAuth, requireRole } = require('../middleware/auth');
+const { requireCsrfIfAuthenticated } = require('../middleware/csrf');
 const { validateId, validateOrder } = require('../middleware/validation');
 const router = express.Router();
 /** @swagger
@@ -12,7 +13,7 @@ const router = express.Router();
  *       201: { description: Pedido confirmado }
  *       409: { description: Inventario insuficiente }
  */
-router.post('/', validateOrder, controller.crear);
-router.get('/', requireAuth, controller.listar);
+router.post('/', optionalAuth, requireCsrfIfAuthenticated, validateOrder, controller.crear);
+router.get('/', requireAuth, requireRole('admin'), controller.listar);
 router.get('/:id', requireAuth, validateId, controller.obtener);
 module.exports = router;

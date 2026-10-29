@@ -15,7 +15,7 @@ async function main() {
   }
 
   try {
-    const creado = await usuarios.crear(usuario, hashPassword(password));
+    const creado = await usuarios.crear(usuario, hashPassword(password), 'admin');
     console.log(`Administrador creado: ${creado.usuario}`);
   } catch (error) {
     console.error(error.code === '23505'
