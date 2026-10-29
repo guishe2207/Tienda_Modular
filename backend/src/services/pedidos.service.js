@@ -49,11 +49,12 @@ async function listar() {
   const result = await pool.query('SELECT id_pedido AS "idPedido", nombre_cliente AS "nombreCliente", correo, total, estado, fecha_creacion AS "fechaCreacion" FROM pedidos ORDER BY fecha_creacion DESC');
   return result.rows.map((p) => ({ ...p, total: Number(p.total) }));
 }
-async function obtener(id) {
+async function obtener(id, user) {
   const pedido = await pool.query(
-    'SELECT id_pedido AS "idPedido", nombre_cliente AS "nombreCliente", correo, telefono, direccion, ciudad, departamento, observaciones, total, estado, fecha_creacion AS "fechaCreacion" FROM pedidos WHERE id_pedido = $1', [id],
+    'SELECT id_pedido AS "idPedido", id_usuario AS "idUsuario", nombre_cliente AS "nombreCliente", correo, telefono, direccion, ciudad, departamento, observaciones, total, estado, fecha_creacion AS "fechaCreacion" FROM pedidos WHERE id_pedido = $1', [id],
   );
   if (!pedido.rowCount) throw new AppError(404, 'ORDER_NOT_FOUND', 'No se encontró el pedido solicitado.');
+  if (user?.rol === 'cliente' && pedido.rows[0].idUsuario !== user.idUsuario) throw new AppError(404, 'ORDER_NOT_FOUND', 'Pedido no encontrado.');
   const details = await pool.query(
     'SELECT id_detalle AS "idDetalle", id_producto AS "idProducto", nombre_producto AS "nombreProducto", cantidad, precio_unitario AS "precioUnitario", subtotal FROM detalle_pedido WHERE id_pedido = $1 ORDER BY id_detalle', [id],
   );

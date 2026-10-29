@@ -111,6 +111,20 @@ function validateLogin(request, response, next) {
   next();
 }
 
+function validateRegistration(request, response, next) {
+  const body = request.body;
+  const errors = [];
+  if (!body || typeof body !== 'object' || Array.isArray(body)) errors.push({ field: 'body', message: 'Envía un objeto JSON.' });
+  else {
+    if (Object.keys(body).some((key) => !['usuario', 'password'].includes(key))) errors.push({ field: 'body', message: 'Solo se permiten usuario y password.' });
+    if (typeof body.usuario !== 'string' || !/^[a-zA-Z0-9_.-]{3,60}$/.test(body.usuario.trim())) errors.push({ field: 'usuario', message: 'Debe tener entre 3 y 60 caracteres seguros.' });
+    if (typeof body.password !== 'string' || body.password.length < 12 || body.password.length > 128) errors.push({ field: 'password', message: 'Debe tener entre 12 y 128 caracteres.' });
+  }
+  if (errors.length) return next(new AppError(400, 'VALIDATION_ERROR', 'La solicitud contiene datos inválidos.', errors));
+  request.validatedBody = { usuario: body.usuario.trim(), password: body.password };
+  next();
+}
+
 function validateOrder(request, response, next) {
   const body = request.body;
   if (!body || typeof body !== 'object' || Array.isArray(body)) return next(new AppError(400, 'VALIDATION_ERROR', 'El cuerpo debe ser un objeto JSON.'));
@@ -126,4 +140,4 @@ function validateOrder(request, response, next) {
   next();
 }
 
-module.exports = { validateBody, validateCategoryQuery, validateId, validateLogin, validateOrder };
+module.exports = { validateBody, validateCategoryQuery, validateId, validateLogin, validateRegistration, validateOrder };

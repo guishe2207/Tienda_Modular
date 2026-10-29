@@ -1,6 +1,6 @@
 const express = require('express');
 const controller = require('../controllers/categorias.controller');
-const { requireAuth } = require('../middleware/auth');
+const { requireAuth, requireRole } = require('../middleware/auth');
 const { requireCsrf } = require('../middleware/csrf');
 const { validateBody, validateId } = require('../middleware/validation');
 
@@ -50,7 +50,7 @@ const router = express.Router();
  *         $ref: '#/components/responses/BadRequest'
  */
 router.get('/', controller.listar);
-router.post('/', requireAuth, requireCsrf, validateBody('categoria'), controller.crear);
+router.post('/', requireAuth, requireRole('admin'), requireCsrf, validateBody('categoria'), controller.crear);
 
 /**
  * @swagger
@@ -113,7 +113,7 @@ router.post('/', requireAuth, requireCsrf, validateBody('categoria'), controller
  *               $ref: '#/components/schemas/Error'
  */
 router.get('/:id', validateId, controller.obtener);
-router.put('/:id', requireAuth, requireCsrf, validateId, validateBody('categoria'), controller.actualizar);
-router.delete('/:id', requireAuth, requireCsrf, validateId, controller.eliminar);
+router.put('/:id', requireAuth, requireRole('admin'), requireCsrf, validateId, validateBody('categoria'), controller.actualizar);
+router.delete('/:id', requireAuth, requireRole('admin'), requireCsrf, validateId, controller.eliminar);
 
 module.exports = router;

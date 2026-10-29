@@ -10,7 +10,7 @@ module.exports = swaggerJsdoc({
       description: 'API JSON para consultar y administrar categorias y productos del catalogo.',
     },
     servers: [{ url: 'http://localhost:3000', description: 'Servidor local' }],
-    security: [{ bearerAuth: [] }],
+    security: [{ cookieAuth: [] }],
     tags: [
       { name: 'Categorias', description: 'Organizacion del catalogo por categoria' },
       { name: 'Productos', description: 'Productos disponibles en el catalogo' },
@@ -19,8 +19,8 @@ module.exports = swaggerJsdoc({
     ],
     components: {
       securitySchemes: {
-        bearerAuth: { type: 'http', scheme: 'bearer', bearerFormat: 'token', description: 'Token de POST /api/auth/login' },
-        csrfToken: { type: 'apiKey', in: 'header', name: 'X-CSRF-Token', description: 'Token CSRF devuelto por POST /api/auth/login; requerido junto al Bearer en POST, PUT y DELETE administrativos.' },
+        cookieAuth: { type: 'apiKey', in: 'cookie', name: 'tm_session', description: 'JWT HttpOnly emitido por POST /api/auth/login.' },
+        csrfToken: { type: 'apiKey', in: 'header', name: 'X-CSRF-Token', description: 'Token CSRF de doble envío; requerido en escrituras autenticadas.' },
       },
       schemas: {
         Categoria: {

@@ -2,7 +2,8 @@ const express = require('express');
 const controller = require('../controllers/auth.controller');
 const { requireAuth } = require('../middleware/auth');
 const { requireCsrf } = require('../middleware/csrf');
-const { validateLogin } = require('../middleware/validation');
+const { validateLogin, validateRegistration } = require('../middleware/validation');
+const { loginRateLimit } = require('../middleware/login-rate-limit');
 
 const router = express.Router();
 
@@ -32,7 +33,8 @@ const router = express.Router();
  *       401:
  *         description: Usuario o contrasena incorrectos
  */
-router.post('/login', validateLogin, controller.login);
+router.post('/login', validateLogin, loginRateLimit, controller.login);
+router.post('/registro', validateRegistration, controller.registro);
 
 /**
  * @swagger
