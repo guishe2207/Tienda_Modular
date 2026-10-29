@@ -8,6 +8,7 @@ const { crearTokenCsrf, requireCsrf } = require('../src/middleware/csrf');
 const { validateBody, validateId, validateLogin } = require('../src/middleware/validation');
 const { hashPassword, verifyPassword } = require('../src/security/password');
 const { loginRateLimit, resetLoginRateLimitForTests } = require('../src/middleware/login-rate-limit');
+const { https: httpsConfig } = require('../src/config/env');
 
 // Ejecuta un middleware sin Express y devuelve el error que recibe next(), o undefined si todo esta bien.
 function ejecutar(middleware, request) {
@@ -119,10 +120,11 @@ test('CSRF exige el encabezado correcto para escrituras autenticadas', async () 
   assert.equal(valid, undefined);
 });
 
-test('Helmet agrega cabeceras de proteccion sin bloquear Swagger y no aplica HSTS al HTTP local', async () => {
+test('Helmet agrega cabeceras de proteccion sin bloquear Swagger y limita HSTS al modo HTTPS local', async () => {
   const response = await request(app).get('/api-docs/');
   assert.equal(response.headers['x-content-type-options'], 'nosniff');
-  assert.equal(response.headers['strict-transport-security'], undefined);
+  if (httpsConfig.enabled) assert.match(response.headers['strict-transport-security'], /max-age=300/);
+  else assert.equal(response.headers['strict-transport-security'], undefined);
 });
 
 test('guarda contrasenas con hash que solo verifica la clave correcta', () => {

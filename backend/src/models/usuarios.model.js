@@ -8,12 +8,12 @@ async function buscarPorUsuario(usuario) {
   return result.rows[0] || null;
 }
 
-async function crear(usuario, passwordHash) {
+async function crear(usuario, passwordHash, rol = 'cliente') {
   const result = await pool.query(
     `INSERT INTO usuarios (usuario, password_hash, rol)
-     VALUES ($1, $2, 'cliente')
+     VALUES ($1, $2, $3)
      RETURNING id_usuario AS "idUsuario", usuario, rol`,
-    [usuario, passwordHash],
+    [usuario, passwordHash, rol],
   );
   return result.rows[0];
 }

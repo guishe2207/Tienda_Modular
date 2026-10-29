@@ -16,4 +16,8 @@ function requireCsrf(request, response, next) {
   next();
 }
 
-module.exports = { crearTokenCsrf, requireCsrf };
+function requireCsrfIfAuthenticated(request, response, next) {
+  return request.user ? requireCsrf(request, response, next) : next();
+}
+
+module.exports = { crearTokenCsrf, requireCsrf, requireCsrfIfAuthenticated };

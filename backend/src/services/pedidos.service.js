@@ -5,7 +5,7 @@ function pedidoApi(row) {
   return { ...row, total: Number(row.total), detalles: row.detalles?.map((d) => ({ ...d, precioUnitario: Number(d.precioUnitario), subtotal: Number(d.subtotal) })) };
 }
 
-async function crear(datos) {
+async function crear(datos, user) {
   const client = await pool.connect();
   try {
     await client.query('BEGIN');
@@ -24,9 +24,9 @@ async function crear(datos) {
       return { ...p, cantidad, precio, subtotal };
     });
     const order = await client.query(
-      `INSERT INTO pedidos (nombre_cliente, correo, telefono, direccion, ciudad, departamento, observaciones, total, clave_idempotencia)
-       VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9) RETURNING id_pedido AS "idPedido", total`,
-      [datos.nombre, datos.correo, datos.telefono, datos.direccion, datos.ciudad, datos.departamento, datos.observaciones, total, datos.claveIdempotencia],
+      `INSERT INTO pedidos (nombre_cliente, correo, telefono, direccion, ciudad, departamento, observaciones, total, clave_idempotencia, id_usuario)
+       VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10) RETURNING id_pedido AS "idPedido", total`,
+      [datos.nombre, datos.correo, datos.telefono, datos.direccion, datos.ciudad, datos.departamento, datos.observaciones, total, datos.claveIdempotencia, user?.idUsuario || null],
     );
     for (const detail of details) {
       await client.query('INSERT INTO detalle_pedido (id_pedido,id_producto,nombre_producto,cantidad,precio_unitario,subtotal) VALUES ($1,$2,$3,$4,$5,$6)', [order.rows[0].idPedido, detail.id_producto, detail.nombre, detail.cantidad, detail.precio, detail.subtotal]);
